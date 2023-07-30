@@ -1,64 +1,40 @@
-package com.example.senai;
+package com.example.senai.view;
 
+import com.example.senai.controller.Controller;
+import com.example.senai.model.Person;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 public class PersonController {
 
-    List<Person> persons = new ArrayList<>();
-    int id = 0;
+    @Autowired
+    Controller controller;
 
     @GetMapping("/person")
     public Person findPerson(@PathParam("name") String name) {
-        for (Person p : persons) {
-            if (p.getName().equals(name)) {
-                return p;
-            }
-        }
-        return null;
+        return controller.findPerson(name);
     }
 
 
     @DeleteMapping("/person")
     public String deletePerson(@PathParam("name") String name) {
-        Person person = new Person();
-        for (Person p : persons){
-            if(p.getName() .equals(name)){
-            person = p;
-        }
-    }
-    persons.remove(person);
-
-    return"Pessoa com o nome de: " + name + ", foi removida";
+        controller.deletePerson(name);
+        return"Pessoa com o nome de: " + name + ", foi removida";
 }
     @PostMapping ("/person")
     public Person addPerson(@RequestParam("name") String  name, @RequestParam("sexo") String sexo){
-        Person person = new Person();
-        person.setName(name);
-        person.setSexo(sexo);
-        id++;
-        person.setId(id);
-        persons.add(person);
-        return person;
+        return controller.addPerson(name, sexo);
     }
 
-    @PutMapping("/person")
-    public Person updatePerson(@PathParam("id") int id, @PathParam("name") String name){
-        Person p = new Person();
-        for(Person person : persons){
-            if(person.getId() == id){
-                p = person;
-            }
-        }
-        return p;
-    }
-
-    @GetMapping("/home")
-    public String helloWorld(){
-        return "Hello world";
-    }
+  @PutMapping("/person")
+  public String updatePerson(@RequestParam("name") String name, @RequestParam("sexo") String sexo) {
+      if (controller.editPerson(name, sexo)) {
+          return "A pessoa com o nome " + name + " teve o sexo atualizado para " + sexo;
+      } else {
+          return "Pessoa com o nome " + name + " não encontrada";
+      }
+  }
 }
